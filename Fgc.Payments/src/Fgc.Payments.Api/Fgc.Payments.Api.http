@@ -1,0 +1,6 @@
+@Fgc.Payments.Api_HostAddress = http://localhost:5154
+
+GET {{Fgc.Payments.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
