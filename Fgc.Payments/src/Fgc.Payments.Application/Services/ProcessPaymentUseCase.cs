@@ -1,4 +1,5 @@
 ﻿using Fgc.MessageContracts.Events;
+using Fgc.Payments.Application.DTOS;
 using Fgc.Payments.Application.Interfaces;
 using Fgc.Payments.Domain.Entities;
 using Fgc.Payments.Domain.Enums;
@@ -8,15 +9,15 @@ namespace Fgc.Payments.Application.Services
 {
     public class ProcessPaymentUseCase (
         IPaymentRepository paymentRepository,
-        IPublishEndpoint publishEndpoint)
+        IPublishEndpoint publishEndpoint) : IProcessPaymentUseCase
     {
-        public async Task<PaymentResponse> ProcessAsync(OrderPlacedEvent orderEvent)
+        public async Task<PaymentResponse> ProcessAsync(ProcessPaymentCommand command)
         {
             var payment = Payment.Create(
-                orderEvent.OrderId,
-                orderEvent.UserId,
-                orderEvent.GameId,
-                orderEvent.Price
+                command.OrderId,
+                command.UserId,
+                command.GameId,
+                command.Amount
             );
 
             await paymentRepository.AddAsync(payment);
