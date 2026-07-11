@@ -3,7 +3,7 @@ using Fgc.Payments.Domain.Entities;
 using Fgc.Payments.Infraestructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace Fgc.Payments.Infrastructure.Repositories;
+namespace Fgc.Payments.Infraestructure.Repositories;
 
 public class PaymentRepository(FgcPaymentsDbContext context)
     : IPaymentRepository

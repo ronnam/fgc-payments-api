@@ -1,6 +1,6 @@
 ﻿using Fgc.Payments.Application.Interfaces;
 using Fgc.Payments.Infraestructure.Persistence;
-using Fgc.Payments.Infrastructure.Repositories;
+using Fgc.Payments.Infraestructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

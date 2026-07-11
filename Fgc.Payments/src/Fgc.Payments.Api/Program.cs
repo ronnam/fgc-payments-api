@@ -2,14 +2,12 @@ using Fgc.Payments.Application.Consumers;
 using Fgc.Payments.Application.Interfaces;
 using Fgc.Payments.Application.Services;
 using Fgc.Payments.Infraestructure.Persistence;
-using Fgc.Payments.Infrastructure.Repositories;
+using Fgc.Payments.Infraestructure.Repositories;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using static MassTransit.Logging.DiagnosticHeaders.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -79,26 +77,29 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // E.MassTransit / RabbitMQ
-builder.Services.AddMassTransit(x =>
+if (!builder.Environment.IsEnvironment("Testing"))
 {
-    // Registra o consumer
-    x.AddConsumer<OrderPlacedEventConsumer>();
-
-    x.UsingRabbitMq((context, cfg) =>
+    builder.Services.AddMassTransit(x =>
     {
-        cfg.Host(builder.Configuration["RabbitMq:Host"] ?? "localhost", "/", h =>
-        {
-            h.Username("admin");
-            h.Password("admin");
-        });
+        // Registra o consumer
+        x.AddConsumer<OrderPlacedEventConsumer>();
 
-        // Nome da fila que o Payments vai escutar
-        cfg.ReceiveEndpoint("payments-order-placed-queue", e =>
+        x.UsingRabbitMq((context, cfg) =>
         {
-            e.ConfigureConsumer<OrderPlacedEventConsumer>(context);
+            cfg.Host(builder.Configuration["RabbitMq:Host"] ?? "localhost", "/", h =>
+            {
+                h.Username("admin");
+                h.Password("admin");
+            });
+
+            // Nome da fila que o Payments vai escutar
+            cfg.ReceiveEndpoint("payments-order-placed-queue", e =>
+            {
+                e.ConfigureConsumer<OrderPlacedEventConsumer>(context);
+            });
         });
     });
-});
+}
 
 // ============================================================
 

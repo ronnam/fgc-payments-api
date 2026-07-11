@@ -19,10 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Fgc.Payments.Infraestructure\Fgc.Payments.Infraestructure.csproj" />
   </ItemGroup>
 
