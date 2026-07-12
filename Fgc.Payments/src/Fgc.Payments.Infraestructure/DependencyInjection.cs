@@ -15,7 +15,7 @@ public static class DependencyInjection
     {
         var connectionString = configuration.GetConnectionString("PaymentsDb");
 
-        services.AddDbContext<FgcPaymentsDbContext>(options =>
+        services.AddDbContext<PaymentsDbContext>(options =>
             options.UseSqlite(connectionString));
 
         services.AddScoped<IPaymentRepository, PaymentRepository>();

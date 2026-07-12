@@ -15,10 +15,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.16" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Fgc.Payments.Application\Fgc.Payments.Application.csproj" />
     <ProjectReference Include="..\Fgc.Payments.Infraestructure\Fgc.Payments.Infraestructure.csproj" />
   </ItemGroup>
 

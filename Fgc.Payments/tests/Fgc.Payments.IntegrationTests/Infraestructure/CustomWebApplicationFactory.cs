@@ -1,4 +1,4 @@
-﻿using Fgc.Payments.Application.Consumers;
+﻿using Fgc.Payments.Api.Consumers;
 using Fgc.Payments.Infraestructure.Persistence;
 using MassTransit;
 using Microsoft.AspNetCore.Hosting;
@@ -14,25 +14,23 @@ namespace Fgc.Payments.IntegrationTests.Infraestructure
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            // Define o ambiente como "Testing" - O Program ignorará o RabbitMQ
-            builder.UseEnvironment("Testing");
-
             builder.ConfigureTestServices(services =>
             {
-                services.RemoveAll(typeof(DbContextOptions<FgcPaymentsDbContext>));
+                // 1. Banco InMemory 
+                services.RemoveAll(typeof(DbContextOptions<PaymentsDbContext>));
                 services.RemoveAll(typeof(DbContextOptions));
 
-                services.AddScoped<DbContextOptions<FgcPaymentsDbContext>>(provider =>
+                services.AddScoped<DbContextOptions<PaymentsDbContext>>(provider =>
                 {
-                    return new DbContextOptionsBuilder<FgcPaymentsDbContext>()
+                    return new DbContextOptionsBuilder<PaymentsDbContext>()
                         .UseInMemoryDatabase("InMemoryPaymentTestDb")
                         .Options;
                 });
 
-                // MassTransit in-memory com TestHarness
-                services.AddMassTransitTestHarness(cfg =>
+                // 2. MassTransit InMemory 
+                services.AddMassTransitTestHarness(x =>
                 {
-                    cfg.AddConsumer<OrderPlacedEventConsumer>();
+                    x.AddConsumer<OrderPlacedEventConsumer>();
                 });
             });
         }

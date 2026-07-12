@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fgc.Payments.Infraestructure.Persistence
 {
-    public class FgcPaymentsDbContext(DbContextOptions<FgcPaymentsDbContext> options)
+    public class PaymentsDbContext(DbContextOptions<PaymentsDbContext> options)
         : DbContext(options)
     {
         public DbSet<Payment> Payments => Set<Payment>();
@@ -11,7 +11,7 @@ namespace Fgc.Payments.Infraestructure.Persistence
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(
-                typeof(FgcPaymentsDbContext).Assembly);
+                typeof(PaymentsDbContext).Assembly);
         }
     }
 }

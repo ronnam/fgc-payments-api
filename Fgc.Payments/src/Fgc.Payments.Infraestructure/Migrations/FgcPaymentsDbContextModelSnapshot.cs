@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Fgc.Payments.Infraestructure.Migrations
 {
-    [DbContext(typeof(FgcPaymentsDbContext))]
+    [DbContext(typeof(PaymentsDbContext))]
     partial class FgcPaymentsDbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Fgc.Payments.Infraestructure.Repositories;
 
-public class PaymentRepository(FgcPaymentsDbContext context)
+public class PaymentRepository(PaymentsDbContext context)
     : IPaymentRepository
 {
     public async Task AddAsync(Payment payment)
@@ -23,5 +23,15 @@ public class PaymentRepository(FgcPaymentsDbContext context)
     public async Task<Payment?> GetPaymentByIdAsync(Guid id)
     {
         return await context.Payments.FirstOrDefaultAsync(p => p.Id == id);
+    }
+
+    public async Task<Payment?> GetByIdAsync(Guid id)
+    {
+        return await context.Payments.FirstOrDefaultAsync(p => p.Id == id);
+    }
+
+    public async Task<Payment?> GetByOrderIdAsync(Guid orderId)
+    {
+        return await context.Payments.FirstOrDefaultAsync(p => p.Id == orderId);
     }
 }

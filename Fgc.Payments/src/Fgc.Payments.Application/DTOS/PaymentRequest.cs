@@ -1,6 +1,6 @@
 ﻿namespace Fgc.Payments.Application.DTOS
 {
-    public record ProcessPaymentCommand(
+    public record PaymentRequest(
         Guid OrderId,
         Guid UserId,
         Guid GameId,

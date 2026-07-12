@@ -6,12 +6,12 @@ using MassTransit;
 namespace Fgc.Payments.Application.Consumers
 {
     public class OrderPlacedEventConsumer(
-        IProcessPaymentUseCase processPaymentUseCase)
+        IPaymentService processPaymentUseCase)
         : IConsumer<OrderPlacedEvent>
     {
         public async Task Consume(ConsumeContext<OrderPlacedEvent> context)
         {
-            var command = new ProcessPaymentCommand(
+            var command = new PaymentRequest(
                 context.Message.OrderId,
                 context.Message.UserId,
                 context.Message.GameId,

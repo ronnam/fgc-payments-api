@@ -9,7 +9,7 @@ namespace Fgc.Payments.UnitTests.Application.Consumers
 {
     public class OrderPlacedEventConsumerTests
     {
-        private readonly Mock<IProcessPaymentUseCase> _useCaseMock = new();
+        private readonly Mock<IPaymentService> _useCaseMock = new();
         private readonly OrderPlacedEventConsumer _consumer;
 
         public OrderPlacedEventConsumerTests()
@@ -32,7 +32,7 @@ namespace Fgc.Payments.UnitTests.Application.Consumers
             await _consumer.Consume(context);
 
             _useCaseMock.Verify(
-                u => u.ProcessAsync(It.Is<ProcessPaymentCommand>(c =>
+                u => u.ProcessAsync(It.Is<PaymentRequest>(c =>
                     c.OrderId == orderEvent.OrderId &&
                     c.UserId == orderEvent.UserId &&
                     c.GameId == orderEvent.GameId &&

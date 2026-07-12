@@ -22,13 +22,15 @@ builder.Services.AddSwaggerGen();
 // ============================================================
 
 // A. Banco de Dados (Entity Framework Core)
-builder.Services.AddDbContext<FgcPaymentsDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("PaymentsDb")));
+builder.Services.AddDbContext<PaymentsDbContext>(options => 
+    options.UseSqlite(builder.Configuration.GetConnectionString("PaymentsDb"))
+);
 
 // B. Injeção de Dependências (Repositories)
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
 // C. Injeção de Dependências (Use Cases / Services)
-builder.Services.AddScoped<IProcessPaymentUseCase, ProcessPaymentUseCase>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 // D. Autenticação JWT
 builder.Services.AddAuthentication("Bearer")
@@ -51,7 +53,7 @@ builder.Services.AddAuthentication("Bearer")
 // Swagger com suporte a JWT
 builder.Services.AddSwaggerGen(c =>
 {
-    c.AddSecurityDefinition("Bearere", new OpenApiSecurityScheme
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "Insira o token JWT no formato: Bearer {seu token}",
         Name = "Authorization",
@@ -77,29 +79,24 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // E.MassTransit / RabbitMQ
-if (!builder.Environment.IsEnvironment("Testing"))
+builder.Services.AddMassTransit(x =>
 {
-    builder.Services.AddMassTransit(x =>
+    x.AddConsumer<OrderPlacedEventConsumer>();
+
+    x.UsingRabbitMq((context, cfg) =>
     {
-        // Registra o consumer
-        x.AddConsumer<OrderPlacedEventConsumer>();
-
-        x.UsingRabbitMq((context, cfg) =>
+        cfg.Host(builder.Configuration["RabbitMq:Host"] ?? "localhost", "/", h =>
         {
-            cfg.Host(builder.Configuration["RabbitMq:Host"] ?? "localhost", "/", h =>
-            {
-                h.Username("admin");
-                h.Password("admin");
-            });
+            h.Username("admin");
+            h.Password("admin");
+        });
 
-            // Nome da fila que o Payments vai escutar
-            cfg.ReceiveEndpoint("payments-order-placed-queue", e =>
-            {
-                e.ConfigureConsumer<OrderPlacedEventConsumer>(context);
-            });
+        cfg.ReceiveEndpoint("payments-order-placed-queue", e =>
+        {
+            e.ConfigureConsumer<OrderPlacedEventConsumer>(context);
         });
     });
-}
+});
 
 // ============================================================
 
@@ -124,7 +121,7 @@ app.MapControllers();
 
 using(var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<FgcPaymentsDbContext>();
+    var context = scope.ServiceProvider.GetRequiredService<PaymentsDbContext>();
     context.Database.EnsureCreated();
 }
 

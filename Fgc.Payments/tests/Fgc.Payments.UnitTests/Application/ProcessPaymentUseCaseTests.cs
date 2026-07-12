@@ -13,11 +13,11 @@ public class ProcessPaymentUseCaseTests
 {
     private readonly Mock<IPaymentRepository> _repositoryMock = new();
     private readonly Mock<IPublishEndpoint> _publishEndpointMock = new();
-    private readonly ProcessPaymentUseCase _useCase;
+    private readonly PaymentService _useCase;
 
     public ProcessPaymentUseCaseTests()
     {
-        _useCase = new ProcessPaymentUseCase(
+        _useCase = new PaymentService(
             _repositoryMock.Object,
             _publishEndpointMock.Object);
     }
@@ -25,7 +25,7 @@ public class ProcessPaymentUseCaseTests
     [Fact]
     public async Task ProcessAsync_WhenSuccessful_ShouldApproveAndPublishEvent()
     {
-        var command = new ProcessPaymentCommand(
+        var command = new PaymentRequest(
             OrderId: Guid.NewGuid(),
             UserId: Guid.NewGuid(),
             GameId: Guid.NewGuid(),
@@ -53,7 +53,7 @@ public class ProcessPaymentUseCaseTests
         Assert.NotNull(capturedPayment.ProcessedAt);
 
         Assert.Equal(capturedPayment.Id, result.Id);
-        Assert.Equal(PaymentStatus.Approved, result.Status);
+        Assert.Equal(PaymentStatus.Approved.ToString(), result.Status);
 
         _publishEndpointMock.Verify(p => p.Publish(
                 It.Is<PaymentProcessedEvent>(e =>
@@ -69,7 +69,7 @@ public class ProcessPaymentUseCaseTests
     [Fact]
     public async Task ProcessAsync_WhenRepositoryFails_ShouldThrow()
     {
-        var command = new ProcessPaymentCommand(
+        var command = new PaymentRequest(
             OrderId: Guid.NewGuid(),
             UserId: Guid.NewGuid(),
             GameId: Guid.NewGuid(),

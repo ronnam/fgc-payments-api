@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Fgc.Payments.Infraestructure.Migrations
 {
-    [DbContext(typeof(FgcPaymentsDbContext))]
+    [DbContext(typeof(PaymentsDbContext))]
     [Migration("20260710174947_InitialCreate")]
     partial class InitialCreate
     {

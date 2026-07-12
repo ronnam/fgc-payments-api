@@ -8,7 +8,7 @@ namespace Fgc.Payments.Application
         public static IServiceCollection AddApplication(
             this IServiceCollection services)
         {
-            services.AddScoped<ProcessPaymentUseCase>();
+            services.AddScoped<PaymentService>();
             return services;
         }
     }

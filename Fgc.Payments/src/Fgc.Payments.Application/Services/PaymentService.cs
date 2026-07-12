@@ -2,17 +2,33 @@
 using Fgc.Payments.Application.DTOS;
 using Fgc.Payments.Application.Interfaces;
 using Fgc.Payments.Domain.Entities;
-using Fgc.Payments.Domain.Enums;
+using Fgc.Payments.Domain.Exceptions;
 using MassTransit;
 
 namespace Fgc.Payments.Application.Services
 {
-    public class ProcessPaymentUseCase (
+    public class PaymentService (
         IPaymentRepository paymentRepository,
-        IPublishEndpoint publishEndpoint) : IProcessPaymentUseCase
+        IPublishEndpoint publishEndpoint) : IPaymentService
     {
-        public async Task<PaymentResponse> ProcessAsync(ProcessPaymentCommand command)
+        public async Task<PaymentResponse?> GetByIdAsync(Guid id)
         {
+            var payment = await paymentRepository.GetByIdAsync(id);
+
+            return payment is null ? null : PaymentResponse.FromPayment(payment);
+        }
+
+        public async Task<PaymentResponse> ProcessAsync(PaymentRequest command)
+        {
+            var existingPayment = await paymentRepository.GetByOrderIdAsync(command.OrderId);
+            if(existingPayment is not null)
+            {
+                throw new PaymentAlreadyProcessedException(
+                    existingPayment.Id,
+                    existingPayment.Status
+                );
+            } 
+
             var payment = Payment.Create(
                 command.OrderId,
                 command.UserId,
@@ -35,7 +51,7 @@ namespace Fgc.Payments.Application.Services
                 ProcessedAt: payment.ProcessedAt!.Value
                 ));
 
-            return new PaymentResponse(payment.Id, PaymentStatus.Approved);
+            return PaymentResponse.FromPayment(payment);
         }
     }
 }
