@@ -1,4 +1,5 @@
-﻿using Fgc.MessageContracts.Events;
+﻿using Fgc.Payments.Application.DTOS;
+using Fgc.MessageContracts.Events;
 using Fgc.Payments.Application.Interfaces;
 using Fgc.Payments.Application.Services;
 using Fgc.Payments.Domain.Entities;
@@ -12,11 +13,11 @@ public class ProcessPaymentUseCaseTests
 {
     private readonly Mock<IPaymentRepository> _repositoryMock = new();
     private readonly Mock<IPublishEndpoint> _publishEndpointMock = new();
-    private readonly ProcessPaymentUseCase _useCase;
+    private readonly PaymentService _useCase;
 
     public ProcessPaymentUseCaseTests()
     {
-        _useCase = new ProcessPaymentUseCase(
+        _useCase = new PaymentService(
             _repositoryMock.Object,
             _publishEndpointMock.Object);
     }
@@ -24,11 +25,11 @@ public class ProcessPaymentUseCaseTests
     [Fact]
     public async Task ProcessAsync_WhenSuccessful_ShouldApproveAndPublishEvent()
     {
-        var orderEvent = new OrderPlacedEvent(
+        var command = new PaymentRequest(
             OrderId: Guid.NewGuid(),
             UserId: Guid.NewGuid(),
             GameId: Guid.NewGuid(),
-            Price: 59.90m);
+            Amount: 59.90m);
 
         Payment? capturedPayment = null;
 
@@ -41,25 +42,25 @@ public class ProcessPaymentUseCaseTests
             .Setup(r => r.UpdateAsync(It.IsAny<Payment>()))
             .Returns(Task.CompletedTask);
 
-        var result = await _useCase.ProcessAsync(orderEvent);
+        var result = await _useCase.ProcessAsync(command);
 
         Assert.NotNull(capturedPayment);
-        Assert.Equal(orderEvent.UserId, capturedPayment.UserId);
-        Assert.Equal(orderEvent.GameId, capturedPayment.GameId);
-        Assert.Equal(orderEvent.Price, capturedPayment.Amount);
+        Assert.Equal(command.UserId, capturedPayment.UserId);
+        Assert.Equal(command.GameId, capturedPayment.GameId);
+        Assert.Equal(command.Amount, capturedPayment.Amount);
 
         Assert.Equal(PaymentStatus.Approved, capturedPayment.Status);
         Assert.NotNull(capturedPayment.ProcessedAt);
 
         Assert.Equal(capturedPayment.Id, result.Id);
-        Assert.Equal(PaymentStatus.Approved, result.Status);
+        Assert.Equal(PaymentStatus.Approved.ToString(), result.Status);
 
         _publishEndpointMock.Verify(p => p.Publish(
                 It.Is<PaymentProcessedEvent>(e =>
-                    e.OrderedId == orderEvent.OrderId &&
-                    e.UserId == orderEvent.UserId &&
-                    e.GameId == orderEvent.GameId &&
-                    e.Price == orderEvent.Price &&
+                    e.OrderedId == command.OrderId &&
+                    e.UserId == command.UserId &&
+                    e.GameId == command.GameId &&
+                    e.Price == command.Amount &&
                     e.Status == "Approved"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
@@ -68,18 +69,18 @@ public class ProcessPaymentUseCaseTests
     [Fact]
     public async Task ProcessAsync_WhenRepositoryFails_ShouldThrow()
     {
-        var orderEvent = new OrderPlacedEvent(
+        var command = new PaymentRequest(
             OrderId: Guid.NewGuid(),
             UserId: Guid.NewGuid(),
             GameId: Guid.NewGuid(),
-            Price: 29.90m);
+            Amount: 29.90m);
 
         _repositoryMock
             .Setup(r => r.AddAsync(It.IsAny<Payment>()))
             .ThrowsAsync(new Exception("Database connection failed"));
 
         var exception = await Assert.ThrowsAsync<Exception>(
-            () => _useCase.ProcessAsync(orderEvent));
+            () => _useCase.ProcessAsync(command));
 
         Assert.Contains("Database connection failed", exception.Message);
 

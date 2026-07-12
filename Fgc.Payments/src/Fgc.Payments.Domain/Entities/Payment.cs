@@ -57,6 +57,5 @@ namespace Fgc.Payments.Domain.Entities
             Status = PaymentStatus.Rejected;
             ProcessedAt = DateTime.UtcNow;
         }
-
     }
 }
