@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fgc-payments-api
+  labels:
+    app: fgc-payments-api
+spec:
+  type: ClusterIP
+  selector:
+    app: fgc-payments-api
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP

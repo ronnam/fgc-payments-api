@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fgc-payments-api-config
+  labels:
+    app: fgc-payments-api
+data:
+  RabbitMq__Host: "rabbitmq"
+  Jwt__Issuer: "Fgc.UsersAPI"
+  Jwt__Audience: "Fgc.PaymentsAPI"
