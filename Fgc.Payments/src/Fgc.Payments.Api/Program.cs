@@ -118,6 +118,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapGet("/health", () => Results.Ok());
 
 using(var scope = app.Services.CreateScope())
 {

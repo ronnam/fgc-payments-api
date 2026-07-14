@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fgc-payments-api
+  labels:
+    app: fgc-payments-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fgc-payments-api
+  template:
+    metadata:
+      labels:
+        app: fgc-payments-api
+    spec:
+      containers:
+        - name: fgc-payments-api
+          image: fgc-payments-api:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: fgc-payments-api-config
+            - secretRef:
+                name: fgc-payments-api-secret
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
